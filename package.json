@@ -1,0 +1,27 @@
+{
+  "name": "charger-simulator",
+  "version": "1.0.1",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "start": "ts-node ./src/stationSimulator.ts",
+    "prepublishOnly": "tsc",
+    "build": "tsc"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^14.0.5",
+    "prettier": "^2.0.5",
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.3"
+  },
+  "repository": "https://github.com/vasyas/charger-simulator.git",
+  "author": "Vasyl Stashuk <vasyl@stashuk.com>",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@push-rpc/core": "^1.0.32",
+    "@push-rpc/websocket": "^1.0.6"
+  }
+}
