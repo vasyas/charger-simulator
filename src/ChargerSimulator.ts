@@ -129,9 +129,13 @@ export class ChargerSimulator {
     RemoteStopTransaction: async (req) => {
       const {transactionId} = req
 
-      if (this.meterTimer) {
-        clearInterval(this.meterTimer)
+      if (!this.meterTimer) {
+        return {
+          status: "Rejected",
+        }
       }
+
+      clearInterval(this.meterTimer)
 
       setTimeout(async () => {
         await this.centralSystem.StopTransaction({
