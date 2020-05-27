@@ -1,3 +1,5 @@
+import * as readline from "readline"
+
 import {log} from "./log"
 import {StationSimulator} from "./stationSimulator"
 ;(async () => {
@@ -13,13 +15,14 @@ import {StationSimulator} from "./stationSimulator"
 
   log.info("Station emulator started")
   log.info(`Supported keys:
-    q: quit
+    Ctrl+C:   quit
+    
+    Control connector ${connectorId}
     ---
-    a: send Available status
-    p: send Preparing status
-    c: send Charging status
-    f: send Finishing status
-    ---
+    a:        send Available status 
+    p:        send Preparing status
+    c:        send Charging status
+    f:        send Finishing status
   `)
 
   async function sendStatus(status: string) {
@@ -31,20 +34,23 @@ import {StationSimulator} from "./stationSimulator"
   }
 
   const commands = {
-    q: () => process.exit(0),
     a: () => sendStatus("Available"),
     p: () => sendStatus("Preparing"),
     c: () => sendStatus("Charging"),
     f: () => sendStatus("Finishing"),
   }
 
+  readline.emitKeypressEvents(process.stdin)
+  process.stdin.setRawMode(true)
+
   process.stdin.on("keypress", (ch, key) => {
+    if (key.ctrl && key.name === "c") {
+      process.exit()
+    }
+
     if (ch) {
       const command = commands[ch]
       command && command()
     }
   })
-
-  process.stdin.setRawMode(true)
-  process.stdin.resume()
 })()
