@@ -28,7 +28,7 @@ const defaultConfig: Partial<Config> = {
   meterValuesIntervalSec: 20,
 }
 
-export class StationSimulator {
+export class ChargerSimulator {
   constructor(config: Config) {
     this.config = {...defaultConfig, ...config}
 

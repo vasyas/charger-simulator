@@ -2,11 +2,15 @@
   "name": "charger-simulator",
   "version": "1.0.1",
   "main": "dist/index.js",
+  "bin": {
+    "charger-simulator": "cli-index.js"
+  },
   "types": "dist/index.d.ts",
   "scripts": {
-    "start": "ts-node ./src/stationSimulatorCli.ts",
+    "start": "ts-node src/chargerSimulatorCli.ts",
     "prepublishOnly": "tsc",
-    "build": "tsc"
+    "build": "tsc",
+    "docs": "typedoc --out docs ./src"
   },
   "license": "MIT",
   "devDependencies": {

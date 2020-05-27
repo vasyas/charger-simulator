@@ -1,19 +1,19 @@
 import * as readline from "readline"
 
 import {log} from "./log"
-import {StationSimulator} from "./stationSimulator"
+import {ChargerSimulator} from "./ChargerSimulator"
 ;(async () => {
   const connectorId = 1
   const centralSystemEndpoint = `ws://proxy.aec.energy/ws`
   const chargerIdentity = "test"
 
-  const simulator = new StationSimulator({
+  const simulator = new ChargerSimulator({
     centralSystemEndpoint,
     chargerIdentity,
   })
   await simulator.start()
 
-  log.info("Station emulator started")
+  log.info("Charger emulator started")
   log.info(`Supported keys:
     Ctrl+C:   quit
     
