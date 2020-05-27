@@ -9,7 +9,8 @@ const optionList = [
   {
     name: "csURL",
     type: String,
-    description: "URL of the Central System server to connect to.\nThis is also a default option.",
+    description:
+      "URL of the Central System server to connect to, ws://server.name/path.\nThis is also a default option.",
     typeLabel: "{underline URL}",
     alias: "s",
     defaultOption: true,
@@ -56,13 +57,19 @@ const usageSections = [
     return
   }
 
+  log.info("Starting charger simulator", {
+    csURL,
+    connectorID,
+    chargerID,
+  })
+
   const simulator = new ChargerSimulator({
     centralSystemEndpoint: csURL,
     chargerIdentity: chargerID,
   })
   await simulator.start()
 
-  log.info("Charger emulator started")
+  log.info("Connected to Central System")
   log.info(`Supported keys:
     Ctrl+C:   quit
     
