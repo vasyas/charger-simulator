@@ -1,15 +1,64 @@
+import * as commandLineArgs from "command-line-args"
+import * as commandLineUsage from "command-line-usage"
 import * as readline from "readline"
 
 import {log} from "./log"
 import {ChargerSimulator} from "./ChargerSimulator"
+
+const optionList = [
+  {
+    name: "csURL",
+    type: String,
+    description: "URL of the Central System server to connect to.\nThis is also a default option.",
+    typeLabel: "{underline URL}",
+    alias: "s",
+    defaultOption: true,
+  },
+  {
+    name: "chargerID",
+    type: String,
+    description: "OCPP ID to be used for simulating charger.\nDefault is 'test'.",
+    typeLabel: "{underline ChargerID}",
+    alias: "i",
+    defaultValue: "test",
+  },
+  {
+    name: "connectorID",
+    type: String,
+    description: "ID of the connector to send status when pressing keys.\nDefaults to 1.",
+    typeLabel: "{underline ConnectorID}",
+    alias: "c",
+    defaultValue: 1,
+  },
+]
+
+const usageSections = [
+  {
+    header: "charger-simulator",
+    content: "Start OCPP charging station simulator, connect simulator to Central System server.",
+  },
+  {
+    header: "Options",
+    optionList,
+  },
+]
+
 ;(async () => {
-  const connectorId = 1
-  const centralSystemEndpoint = `ws://proxy.aec.energy/ws`
-  const chargerIdentity = "test"
+  // const connectorID = 1
+  // const csURL = `ws://proxy.aec.energy/ws`
+  // const chargerID = "test"
+
+  const {connectorID, csURL, chargerID} = commandLineArgs(optionList)
+
+  if (!connectorID || !csURL || !chargerID) {
+    const usage = commandLineUsage(usageSections)
+    console.log(usage)
+    return
+  }
 
   const simulator = new ChargerSimulator({
-    centralSystemEndpoint,
-    chargerIdentity,
+    centralSystemEndpoint: csURL,
+    chargerIdentity: chargerID,
   })
   await simulator.start()
 
@@ -17,7 +66,7 @@ import {ChargerSimulator} from "./ChargerSimulator"
   log.info(`Supported keys:
     Ctrl+C:   quit
     
-    Control connector ${connectorId}
+    Control connector ${connectorID}
     ---
     a:        send Available status 
     p:        send Preparing status
@@ -27,7 +76,7 @@ import {ChargerSimulator} from "./ChargerSimulator"
 
   async function sendStatus(status: string) {
     await simulator.centralSystem.StatusNotification({
-      connectorId,
+      connectorId: connectorID,
       errorCode: "NoError",
       status,
     })
