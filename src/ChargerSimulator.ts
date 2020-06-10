@@ -176,5 +176,9 @@ export class ChargerSimulator {
     Reset: async (req) => {
       return {status: "Accepted"}
     },
+
+    TriggerMessage: async (req) => {
+      return {status: "Accepted"}
+    },
   }
 }
