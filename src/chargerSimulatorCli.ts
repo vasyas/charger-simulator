@@ -16,20 +16,28 @@ const optionList = [
     defaultOption: true,
   },
   {
-    name: "chargerID",
+    name: "chargerId",
     type: String,
     description: "OCPP ID to be used for simulating charger.\nDefault is 'test'.",
-    typeLabel: "{underline ChargerID}",
+    typeLabel: "{underline ChargerId}",
     alias: "i",
     defaultValue: "test",
   },
   {
-    name: "connectorID",
+    name: "connectorId",
     type: String,
     description: "ID of the connector to send status when pressing keys.\nDefaults to 1.",
-    typeLabel: "{underline ConnectorID}",
+    typeLabel: "{underline ConnectorId}",
     alias: "c",
     defaultValue: 1,
+  },
+  {
+    name: "idTag",
+    type: String,
+    description: "ID Tag to start transaction.\nDefaults to 123456.",
+    typeLabel: "{underline idTag}",
+    alias: "t",
+    defaultValue: "123456",
   },
 ]
 
@@ -45,13 +53,9 @@ const usageSections = [
 ]
 
 ;(async () => {
-  // const connectorID = 1
-  // const csURL = `ws://proxy.aec.energy/ws`
-  // const chargerID = "test"
+  const {connectorId, csURL, chargerId, idTag} = commandLineArgs(optionList)
 
-  const {connectorID, csURL, chargerID} = commandLineArgs(optionList)
-
-  if (!connectorID || !csURL || !chargerID) {
+  if (!connectorId || !csURL || !chargerId) {
     const usage = commandLineUsage(usageSections)
     console.log(usage)
     return
@@ -59,13 +63,14 @@ const usageSections = [
 
   log.info("Starting charger simulator", {
     csURL,
-    connectorID,
-    chargerID,
+    connectorId,
+    chargerId,
+    idTag,
   })
 
   const simulator = new ChargerSimulator({
     centralSystemEndpoint: csURL,
-    chargerIdentity: chargerID,
+    chargerIdentity: chargerId,
   })
   await simulator.start()
 
@@ -73,17 +78,23 @@ const usageSections = [
   log.info(`Supported keys:
     Ctrl+C:   quit
     
-    Control connector ${connectorID}
+    Connector ${connectorId} status
     ---
     a:        send Available status 
     p:        send Preparing status
     c:        send Charging status
     f:        send Finishing status
+    
+    Transaction on connector ${connectorId}, tag ${idTag}
+    --
+    u:        Authorize
+    s:        StartTransaction
+    t:        StopTransaction
   `)
 
   async function sendStatus(status: string) {
     await simulator.centralSystem.StatusNotification({
-      connectorId: connectorID,
+      connectorId: connectorId,
       errorCode: "NoError",
       status,
     })
@@ -94,6 +105,10 @@ const usageSections = [
     p: () => sendStatus("Preparing"),
     c: () => sendStatus("Charging"),
     f: () => sendStatus("Finishing"),
+
+    u: () => simulator.centralSystem.Authorize({idTag}),
+    s: () => simulator.startTransaction({idTag, connectorId}),
+    t: () => simulator.stopTransaction(),
   }
 
   readline.emitKeypressEvents(process.stdin)

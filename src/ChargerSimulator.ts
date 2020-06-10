@@ -39,7 +39,7 @@ export class ChargerSimulator {
     ]
   }
 
-  async start() {
+  public async start() {
     const {remote} = await createRpcClient(
       0,
       () =>
@@ -81,78 +81,86 @@ export class ChargerSimulator {
     }
   }
 
+  public startTransaction({connectorId, idTag}) {
+    if (this.meterTimer) {
+      return false
+    }
+
+    setTimeout(async () => {
+      this.transactionId = (
+        await this.centralSystem.StartTransaction({
+          connectorId,
+          idTag,
+          timestamp: new Date(),
+          meterStart: 0,
+        })
+      ).transactionId
+
+      this.charged = 0
+
+      this.meterTimer = setInterval(() => {
+        this.charged += Math.random() > 0.66 ? 30 : 20 // 26.6 W / 10s avg = 9.36 Kw
+
+        this.centralSystem.MeterValues({
+          connectorId,
+          transactionId: this.transactionId,
+          values: [
+            {
+              timestamp: new Date(),
+              values: [
+                {
+                  value: "" + this.charged,
+                  measurand: "Energy.Active.Import.Register",
+                  unit: "Wh",
+                },
+              ],
+            },
+          ],
+        })
+      }, this.config.meterValuesIntervalSec * 1000)
+    }, this.config.startDelayMs)
+
+    return true
+  }
+
+  public stopTransaction() {
+    if (!this.meterTimer) {
+      return false
+    }
+
+    clearInterval(this.meterTimer)
+    this.meterTimer = null
+    this.transactionId = null
+
+    setTimeout(async () => {
+      await this.centralSystem.StopTransaction({
+        transactionId: this.transactionId,
+        timestamp: new Date(),
+        meterStop: this.charged,
+      })
+    }, this.config.stopDelayMs)
+
+    return true
+  }
+
   public centralSystem = null
 
   private config: Config = null
   private meterTimer = null
   private charged = 0
   private configurationKeys = []
+  private transactionId = null
   private chargePoint = {
     RemoteStartTransaction: async (req) => {
-      const {connectorId, idTag} = req
-
-      if (this.meterTimer) {
-        return {
-          status: "Rejected",
-        }
+      return {
+        status: this.startTransaction(req) ? "Accepted" : "Rejected",
       }
-
-      setTimeout(async () => {
-        const {transactionId} = await this.centralSystem.StartTransaction({
-          connectorId,
-          idTag,
-          timestamp: new Date(),
-          meterStart: 0,
-        })
-
-        this.charged = 0
-
-        this.meterTimer = setInterval(() => {
-          this.charged += Math.random() > 0.66 ? 30 : 20 // 26.6 W / 10s avg = 9.36 Kw
-
-          this.centralSystem.MeterValues({
-            connectorId,
-            transactionId,
-            values: [
-              {
-                timestamp: new Date(),
-                values: [
-                  {
-                    value: "" + this.charged,
-                    measurand: "Energy.Active.Import.Register",
-                    unit: "Wh",
-                  },
-                ],
-              },
-            ],
-          })
-        }, this.config.meterValuesIntervalSec * 1000)
-      }, this.config.startDelayMs)
-
-      return {status: "Accepted"}
     },
 
     RemoteStopTransaction: async (req) => {
-      const {transactionId} = req
-
-      if (!this.meterTimer) {
-        return {
-          status: "Rejected",
-        }
+      return {
+        status: this.stopTransaction() ? "Accepted" : "Rejected",
       }
-
-      clearInterval(this.meterTimer)
-      this.meterTimer = null
-
-      setTimeout(async () => {
-        await this.centralSystem.StopTransaction({
-          transactionId,
-          timestamp: new Date(),
-          meterStop: this.charged,
-        })
-      }, this.config.stopDelayMs)
-
-      return {status: "Accepted"}
     },
 
     GetConfiguration: async (req) => ({configurationKey: this.configurationKeys}),
