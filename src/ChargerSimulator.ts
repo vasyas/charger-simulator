@@ -18,7 +18,7 @@ export interface Config {
 }
 
 const defaultConfig: Partial<Config> = {
-  defaultHeartbeatIntervalSec: 50,
+  defaultHeartbeatIntervalSec: 30,
   chargePointVendor: "Test",
   chargePointModel: "1",
   bootOnStart: true,
@@ -73,6 +73,12 @@ export class ChargerSimulator {
       }
     )
     this.centralSystem = remote
+
+    if (this.config.defaultHeartbeatIntervalSec) {
+      setInterval(() => {
+        this.centralSystem.Heartbeat()
+      }, this.config.defaultHeartbeatIntervalSec * 1000)
+    }
   }
 
   public centralSystem = null
