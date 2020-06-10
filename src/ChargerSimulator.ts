@@ -142,6 +142,7 @@ export class ChargerSimulator {
       }
 
       clearInterval(this.meterTimer)
+      this.meterTimer = null
 
       setTimeout(async () => {
         await this.centralSystem.StopTransaction({
