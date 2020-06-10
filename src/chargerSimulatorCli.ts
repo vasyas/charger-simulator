@@ -37,7 +37,7 @@ const optionList = [
     description: "ID Tag to start transaction.\nDefaults to 123456.",
     typeLabel: "{underline idTag}",
     alias: "t",
-    defaultValue: "123456",
+    defaultValue: "12345678",
   },
 ]
 
