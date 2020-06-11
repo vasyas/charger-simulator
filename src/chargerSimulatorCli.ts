@@ -107,8 +107,8 @@ const usageSections = [
     f: () => sendStatus("Finishing"),
 
     u: () => simulator.centralSystem.Authorize({idTag}),
-    s: () => simulator.startTransaction({idTag, connectorId}),
-    t: () => simulator.stopTransaction(),
+    s: () => simulator.startTransaction({idTag, connectorId}, false),
+    t: () => simulator.stopTransaction(false),
   }
 
   readline.emitKeypressEvents(process.stdin)

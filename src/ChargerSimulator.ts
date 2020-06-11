@@ -81,64 +81,71 @@ export class ChargerSimulator {
     }
   }
 
-  public startTransaction({connectorId, idTag}) {
+  public startTransaction({connectorId, idTag}, delay) {
     if (this.meterTimer) {
       return false
     }
 
-    setTimeout(async () => {
-      this.transactionId = (
-        await this.centralSystem.StartTransaction({
-          connectorId,
-          idTag,
-          timestamp: new Date(),
-          meterStart: 0,
-        })
-      ).transactionId
+    setTimeout(
+      async () => {
+        this.transactionId = (
+          await this.centralSystem.StartTransaction({
+            connectorId,
+            idTag,
+            timestamp: new Date(),
+            meterStart: 0,
+          })
+        ).transactionId
 
-      this.charged = 0
+        this.charged = 0
 
-      this.meterTimer = setInterval(() => {
-        this.charged += Math.random() > 0.66 ? 30 : 20 // 26.6 W / 10s avg = 9.36 Kw
+        this.meterTimer = setInterval(() => {
+          this.charged += Math.random() > 0.66 ? 30 : 20 // 26.6 W / 10s avg = 9.36 Kw
 
-        this.centralSystem.MeterValues({
-          connectorId,
-          transactionId: this.transactionId,
-          values: [
-            {
-              timestamp: new Date(),
-              values: [
-                {
-                  value: "" + this.charged,
-                  measurand: "Energy.Active.Import.Register",
-                  unit: "Wh",
-                },
-              ],
-            },
-          ],
-        })
-      }, this.config.meterValuesIntervalSec * 1000)
-    }, this.config.startDelayMs)
+          this.centralSystem.MeterValues({
+            connectorId,
+            transactionId: this.transactionId,
+            values: [
+              {
+                timestamp: new Date(),
+                values: [
+                  {
+                    value: "" + this.charged,
+                    measurand: "Energy.Active.Import.Register",
+                    unit: "Wh",
+                  },
+                ],
+              },
+            ],
+          })
+        }, this.config.meterValuesIntervalSec * 1000)
+      },
+      delay ? this.config.startDelayMs : 0
+    )
 
     return true
   }
 
-  public stopTransaction() {
+  public stopTransaction(delay) {
     if (!this.meterTimer) {
       return false
     }
 
     clearInterval(this.meterTimer)
-    this.meterTimer = null
-    this.transactionId = null
 
-    setTimeout(async () => {
-      await this.centralSystem.StopTransaction({
-        transactionId: this.transactionId,
-        timestamp: new Date(),
-        meterStop: this.charged,
-      })
-    }, this.config.stopDelayMs)
+    setTimeout(
+      async () => {
+        await this.centralSystem.StopTransaction({
+          transactionId: this.transactionId,
+          timestamp: new Date(),
+          meterStop: this.charged,
+        })
+
+        this.meterTimer = null
+        this.transactionId = null
+      },
+      delay ? this.config.stopDelayMs : 0
+    )
 
     return true
   }
@@ -153,13 +160,13 @@ export class ChargerSimulator {
   private chargePoint = {
     RemoteStartTransaction: async (req) => {
       return {
-        status: this.startTransaction(req) ? "Accepted" : "Rejected",
+        status: this.startTransaction(req, true) ? "Accepted" : "Rejected",
       }
     },
 
     RemoteStopTransaction: async (req) => {
       return {
-        status: this.stopTransaction() ? "Accepted" : "Rejected",
+        status: this.stopTransaction(true) ? "Accepted" : "Rejected",
       }
     },
 
