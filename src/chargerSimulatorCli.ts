@@ -78,6 +78,9 @@ const usageSections = [
   log.info(`Supported keys:
     Ctrl+C:   quit
     
+    --
+    b:        send BootNotification
+    
     Connector ${connectorId} status
     ---
     a:        send Available status 
@@ -101,6 +104,12 @@ const usageSections = [
   }
 
   const commands = {
+    b: () =>
+      simulator.centralSystem.BootNotification({
+        chargePointVendor: "OC",
+        chargePointModel: "OCX",
+      }),
+
     a: () => sendStatus("Available"),
     p: () => sendStatus("Preparing"),
     c: () => sendStatus("Charging"),
