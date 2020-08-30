@@ -80,6 +80,7 @@ const usageSections = [
     
     --
     b:        send BootNotification
+    d:        send DataTransfer
     
     Connector ${connectorId} status
     ---
@@ -108,6 +109,12 @@ const usageSections = [
       simulator.centralSystem.BootNotification({
         chargePointVendor: "OC",
         chargePointModel: "OCX",
+      }),
+    d: () =>
+      simulator.centralSystem.DataTransfer({
+        vendorId: "Emulator",
+        messageId: "MessageID",
+        data: "Data",
       }),
 
     a: () => sendStatus("Available"),
