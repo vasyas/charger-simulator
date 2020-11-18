@@ -114,6 +114,11 @@ export class ChargerSimulator {
                     measurand: "Energy.Active.Import.Register",
                     unit: "Wh",
                   },
+                  {
+                    value: "38",
+                    measurand: "SoC",
+                    unit: "Percent",
+                  },
                 ],
               },
             ],
@@ -161,6 +166,7 @@ export class ChargerSimulator {
     RemoteStartTransaction: async (req) => {
       return {
         status: this.startTransaction(req, true) ? "Accepted" : "Rejected",
+        // status: "Rejected",
       }
     },
 
