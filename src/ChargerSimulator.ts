@@ -202,5 +202,9 @@ export class ChargerSimulator {
     TriggerMessage: async (req) => {
       return {status: "Accepted"}
     },
+
+    UpdateFirmware: async (req) => {
+      return {status: "Accepted"}
+    }
   }
 }
