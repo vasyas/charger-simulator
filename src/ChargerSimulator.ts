@@ -176,7 +176,11 @@ export class ChargerSimulator {
       }
     },
 
-    GetConfiguration: async (req) => ({configurationKey: this.configurationKeys}),
+    GetConfiguration: async (req) => {
+      await new Promise(r => setTimeout(r, 2000))
+
+      return ({configurationKey: this.configurationKeys})
+    },
     ChangeConfiguration: async (req) => {
       for (let i = 0; i < this.configurationKeys.length; i++) {
         if (this.configurationKeys[i].key == req.key) {
