@@ -149,12 +149,12 @@ function soapServerLog(type, data) {
 export async function logOcppRequest(chargeBoxId, envelope) {
   if (process.env.noRequestLogging) return
   const details = await prettyPrintXml(envelope)
-  log.debug("OCPP in", details)
+  log.debug("OCPP out", details)
 
 }
 
 export async function logOcppResponse(chargeBoxId, envelope) {
   if (process.env.noRequestLogging) return
   const details = await prettyPrintXml(envelope)
-  log.debug("OCPP out", details)
+  log.debug("OCPP in", details)
 }
