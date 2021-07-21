@@ -3,6 +3,7 @@
 import * as path from "path"
 import * as UUID from "uuid-js"
 import {createClient, createServer, getClientKeys, promisifyServer} from "./nodeSoapUtils"
+import { proxy } from "./serverUtils"
 
 export function createChargePointServer(target, port) {
   const keys = Object.keys(target)
@@ -77,17 +78,4 @@ function withSetWsAddressingHeaders(
     },
     keys
   )
-}
-
-function proxy<T extends object>(target: T, invoker, keys: string[]): T {
-  const r = {...(target as any)}
-
-  keys.forEach((key) => {
-    r[key] = function (...args) {
-      const impl = target[key]
-      return invoker(impl, key, ...args)
-    }
-  })
-
-  return r as any
 }

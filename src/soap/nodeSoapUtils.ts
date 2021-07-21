@@ -1,21 +1,9 @@
-// tweaks for working with strong-soap
-
 import * as fs from "fs"
 import * as http from "http"
 import {soap} from "strong-soap"
-import {log} from "@push-rpc/micro/lib/logger"
-import {OcppContext} from "../../../ocpp/tools"
-import {
-  convertDateToString,
-  convertStringToDate,
-  ISO8601,
-  ISO8601_secs,
-  proxify,
-  proxy,
-} from "../../../serverUtils"
-import {ChargePointLogType} from "../../../../../schema/chargePoints"
+import {convertDateToString, convertStringToDate, ISO8601, ISO8601_secs, proxify, proxy,} from "./serverUtils"
 import {prettyPrintXml} from "./xmlUtils"
-import {ocppLog} from "../../../ocppLogger"
+import {log} from "../log"
 
 let server = null
 
@@ -24,38 +12,30 @@ export function createServer({
   soapService,
   path,
   port,
-  app = undefined,
 }): Promise<string> {
   const wsdl = fs.readFileSync(wsdlFile, "utf8")
 
-  const endpoint = `http://localhost:${port}${path}`
+  return new Promise((resolve, reject) => {
+    const createServer = () => {
+      server = http.createServer((request, response) => {
+        response.end(`404: Not Found: ${request.url}`)
+      })
 
-  if (app) {
-    createServerInKoa(app, port, path, soapService, wsdl)
-    return Promise.resolve(endpoint)
-  } else {
-    return new Promise((resolve, reject) => {
-      const createServer = () => {
-        server = http.createServer((request, response) => {
-          response.end(`404: Not Found: ${request.url}`)
-        })
+      server.listen(port, () => {
+        log.info(`OCPP Server is listening on port ${port}`)
+        resolve(server)
+      })
 
-        server.listen(port, () => {
-          log.info(`OCPP Server is listening on port ${port}`)
-          resolve(server)
-        })
+      const soapServer = soap.listen(server, path, soapService, wsdl)
+      soapServer.log = soapServerLog
+    }
 
-        const soapServer = soap.listen(server, path, soapService, wsdl)
-        soapServer.log = soapServerLog
-      }
-
-      if (server) {
-        server.close(createServer)
-      } else {
-        createServer()
-      }
-    })
-  }
+    if (server) {
+      server.close(createServer)
+    } else {
+      createServer()
+    }
+  })
 }
 
 export async function createClient(chargeBoxId, wsdlFile, endpoint): Promise<any> {
@@ -162,74 +142,6 @@ export function promisifyServer(target, keys) {
   )
 }
 
-function createServerInKoa(app, port, path, soapService, wsdl) {
-  const koaWrapper = {
-    listeners: () => [],
-    removeAllListeners: () => {},
-    addListener: () => {},
-  }
-
-  const server = soap.listen(koaWrapper, {
-    path,
-    services: soapService,
-    xml: wsdl,
-    attributesKey: "attributes",
-  })
-  server.log = soapServerLog
-
-  app.use((ctx, next) => {
-    if (ctx.path.startsWith(path)) {
-      soapService.ctx = {
-        // create context for passing into service impl
-        sql: ctx.sql,
-        requestBody: ctx.request.body,
-      } as OcppContext
-
-      const {promise, res} = wrapResponse(ctx.response, soapService.ctx)
-
-      server._requestListener(ctx.req, res)
-      return promise
-    }
-
-    return next()
-  })
-
-  return `http://localhost:${port}${path}`
-}
-
-function wrapResponse(response, ctx: OcppContext) {
-  let resolve
-
-  const promise = new Promise((r) => {
-    resolve = r
-  })
-
-  const res = {
-    statusCode: undefined,
-
-    write: (body) => {
-      if (res.statusCode) response.status = res.statusCode
-
-      setImmediate(async () => {
-        const details = await prettyPrintXml(body)
-        ocppLog(ChargePointLogType.OcppOut, ctx.pointId, details)
-      })
-
-      response.body = body
-    },
-
-    setHeader: (name, value) => {
-      response.set(name, value)
-    },
-
-    end: () => {
-      resolve()
-    },
-  }
-
-  return {res, promise}
-}
-
 function soapServerLog(type, data) {
   if (type == "error") log.error(data)
 }
@@ -237,11 +149,12 @@ function soapServerLog(type, data) {
 export async function logOcppRequest(chargeBoxId, envelope) {
   if (process.env.noRequestLogging) return
   const details = await prettyPrintXml(envelope)
-  ocppLog(ChargePointLogType.OcppOut, chargeBoxId, details)
+  log.debug("OCPP in", details)
+
 }
 
 export async function logOcppResponse(chargeBoxId, envelope) {
   if (process.env.noRequestLogging) return
   const details = await prettyPrintXml(envelope)
-  ocppLog(ChargePointLogType.OcppIn, chargeBoxId, details)
+  log.debug("OCPP out", details)
 }

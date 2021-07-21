@@ -2,6 +2,7 @@ import {createRpcClient} from "@push-rpc/core"
 import {wrapWebsocket} from "@push-rpc/websocket/dist/server"
 import * as WebSocket from "ws"
 import {log} from "./log"
+import {createCentralSystemClient, createChargePointServer} from "./soap/ocppSoap"
 
 export interface Config {
   defaultHeartbeatIntervalSec?: number
@@ -42,7 +43,10 @@ export class ChargerSimulator {
 
   public async start() {
     if (this.config.chargePointPort) {
+      await createChargePointServer(this.chargePoint, this.config.chargePointPort)
       log.info(`Started SOAP Charge Point server at http://localhost:${this.config.chargePointPort}/`)
+
+      this.centralSystem = await createCentralSystemClient(this.config.centralSystemEndpoint, this.config.chargerIdentity, `http://localhost:${this.config.chargePointPort}/`)
       log.info(`Will send messages to Central System at ${this.config.centralSystemEndpoint}`)
     } else {
       const {remote} = await createRpcClient(
