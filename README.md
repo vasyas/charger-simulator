@@ -1,5 +1,5 @@
-EV charger simulator. Supports OCPP/J version 1.6. Can be used as CLI program, or as library in any 
-JS environment.
+EV charger simulator. Supports OCPP/J version 1.6 and OCPP/SOAP version 1.5. 
+Can be used as CLI program, or as library in any JS environment.
 
 # CLI usage
 
@@ -49,10 +49,12 @@ Options
 
   -s, --csURL URL                 URL of the Central System server to connect to, ws://server.name/path.
                                   This is also a default option.
-  -i, --chargerID ChargerID       OCPP ID to be used for simulating charger.
+  -i, --chargerId ChargerId       OCPP ID to be used for simulating charger.
                                   Default is 'test'.
-  -c, --connectorID ConnectorID   ID of the connector to send status when pressing keys.
+  -c, --connectorId ConnectorId   ID of the connector to send status when pressing keys.
                                   Defaults to 1.
+  -t, --idTag idTag               ID Tag to start transaction.
+                                  Defaults to 123456.
 ```
 
 ## Default behavior

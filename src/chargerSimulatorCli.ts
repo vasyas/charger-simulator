@@ -16,6 +16,14 @@ const optionList = [
     defaultOption: true,
   },
   {
+    name: "cpPort",
+    type: Number,
+    description:
+      "Port number to bind ChargePoint SOAP service. If specified, emulator will use SOAP protocol to connect to Central System, otherwise, WebSocket will be used",
+    typeLabel: "{underline Number}",
+    alias: "p"
+  },
+  {
     name: "chargerId",
     type: String,
     description: "OCPP ID to be used for simulating charger.\nDefault is 'test'.",
@@ -53,7 +61,7 @@ const usageSections = [
 ]
 
 ;(async () => {
-  const {connectorId, csURL, chargerId, idTag} = commandLineArgs(optionList)
+  const {connectorId, csURL, cpPort, chargerId, idTag} = commandLineArgs(optionList)
 
   if (!connectorId || !csURL || !chargerId) {
     const usage = commandLineUsage(usageSections)
@@ -71,10 +79,10 @@ const usageSections = [
   const simulator = new ChargerSimulator({
     centralSystemEndpoint: csURL,
     chargerIdentity: chargerId,
+    chargePointPort: cpPort
   })
   await simulator.start()
 
-  log.info("Connected to Central System")
   log.info(`Supported keys:
     Ctrl+C:   quit
     

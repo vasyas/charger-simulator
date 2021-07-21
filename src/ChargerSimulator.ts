@@ -15,6 +15,7 @@ export interface Config {
 
   centralSystemEndpoint: string
   chargerIdentity: string
+  chargePointPort?: number
 }
 
 const defaultConfig: Partial<Config> = {
@@ -40,39 +41,49 @@ export class ChargerSimulator {
   }
 
   public async start() {
-    const {remote} = await createRpcClient(
-      0,
-      () =>
-        wrapWebsocket(
-          new WebSocket(
-            this.config.centralSystemEndpoint + "/" + this.config.chargerIdentity,
-            "ocpp1.6"
-          )
-        ),
-      {
-        local: this.chargePoint,
-        reconnect: true,
-        keepAliveTimeout: this.config.keepAliveTimeoutMs,
+    if (this.config.chargePointPort) {
+      log.info(`Started SOAP Charge Point server at http://localhost:${this.config.chargePointPort}/`)
+      log.info(`Will send messages to Central System at ${this.config.centralSystemEndpoint}`)
+    } else {
+      const {remote} = await createRpcClient(
+        0,
+        () =>
+          wrapWebsocket(
+            new WebSocket(
+              this.config.centralSystemEndpoint + "/" + this.config.chargerIdentity,
+              "ocpp1.6"
+            )
+          ),
+        {
+          local: this.chargePoint,
+          reconnect: true,
+          keepAliveTimeout: this.config.keepAliveTimeoutMs,
 
-        listeners: {
-          messageIn: (data) => {
-            log.debug("OCPP in", data)
+          listeners: {
+            messageIn: (data) => {
+              log.debug("OCPP in", data)
+            },
+            messageOut: (data) => {
+              log.debug("OCPP out", data)
+            },
+            connected() {
+              log.debug("OCPP connected")
+            },
+            disconnected({code, reason}) {
+              log.debug("OCPP disconnected", {code, reason})
+            },
+            subscribed(subscriptions: number): void {
+            },
+            unsubscribed(subscriptions: number): void {
+            },
           },
-          messageOut: (data) => {
-            log.debug("OCPP out", data)
-          },
-          connected() {
-            log.debug("OCPP connected")
-          },
-          disconnected({code, reason}) {
-            log.debug("OCPP disconnected", {code, reason})
-          },
-          subscribed(subscriptions: number): void {},
-          unsubscribed(subscriptions: number): void {},
-        },
-      }
-    )
-    this.centralSystem = remote
+        }
+      )
+
+      log.info(`Connected to Central System at ${this.config.centralSystemEndpoint} using WebSocket`)
+
+      this.centralSystem = remote
+    }
 
     if (this.config.defaultHeartbeatIntervalSec) {
       setInterval(() => {
