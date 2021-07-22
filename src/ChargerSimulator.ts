@@ -8,7 +8,6 @@ export interface Config {
   defaultHeartbeatIntervalSec?: number
   chargePointVendor?: string
   chargePointModel?: string
-  bootOnStart?: boolean
   startDelayMs?: number
   stopDelayMs?: number
   keepAliveTimeoutMs?: number // set to null to disable pings
@@ -23,7 +22,6 @@ const defaultConfig: Partial<Config> = {
   defaultHeartbeatIntervalSec: 30,
   chargePointVendor: "Test",
   chargePointModel: "1",
-  bootOnStart: true,
   startDelayMs: 8 * 1000,
   stopDelayMs: 8 * 1000,
   keepAliveTimeoutMs: 50 * 1000,
