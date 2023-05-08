@@ -20,6 +20,11 @@ Then launch it with command
 charger-simulator <URL to central system>
 ```
 
+You can also run from a cloned git repository
+```
+yarn start <URL to central system>
+```
+
 On successfull launch, you will get this message
 
 ```
