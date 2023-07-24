@@ -118,10 +118,10 @@ export class ChargerSimulator {
           this.centralSystem.MeterValues({
             connectorId,
             transactionId: this.transactionId,
-            values: [
+            meterValue: [
               {
                 timestamp: new Date(),
-                values: [
+                sampledValue: [
                   {
                     value: "" + this.charged,
                     measurand: "Energy.Active.Import.Register",
