@@ -7,12 +7,12 @@ Can be used as CLI program, or as library in any JS environment.
 
 Install in project
 ```
-yarn add charger-simulator
+yarn add vasyas/charger-simulator
 ```
 
 or globally
 ```
-yarn global add charger-simulator
+yarn global add vasyas/charger-simulator
 ```
 
 Then launch it with command
