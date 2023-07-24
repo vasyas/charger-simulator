@@ -28,6 +28,8 @@ const defaultConfig: Partial<Config> = {
   meterValuesIntervalSec: 20,
 }
 
+let ws: WebSocket
+
 export class ChargerSimulator {
   constructor(config: Config) {
     this.config = {...defaultConfig, ...config}
@@ -42,20 +44,27 @@ export class ChargerSimulator {
   public async start() {
     if (this.config.chargePointPort) {
       await createChargePointServer(this.chargePoint, this.config.chargePointPort)
-      log.info(`Started SOAP Charge Point server at http://localhost:${this.config.chargePointPort}/`)
+      log.info(
+        `Started SOAP Charge Point server at http://localhost:${this.config.chargePointPort}/`
+      )
 
-      this.centralSystem = await createCentralSystemClient(this.config.centralSystemEndpoint, this.config.chargerIdentity, `http://localhost:${this.config.chargePointPort}/`)
+      this.centralSystem = await createCentralSystemClient(
+        this.config.centralSystemEndpoint,
+        this.config.chargerIdentity,
+        `http://localhost:${this.config.chargePointPort}/`
+      )
       log.info(`Will send messages to Central System at ${this.config.centralSystemEndpoint}`)
     } else {
       const {remote} = await createRpcClient(
         0,
-        () =>
-          wrapWebsocket(
-            new WebSocket(
-              this.config.centralSystemEndpoint + "/" + this.config.chargerIdentity,
-              "ocpp1.6"
-            )
-          ),
+        async () => {
+          ws = new WebSocket(
+            this.config.centralSystemEndpoint + "/" + this.config.chargerIdentity,
+            "ocpp1.6"
+          )
+
+          return wrapWebsocket(ws)
+        },
         {
           local: this.chargePoint,
           reconnect: true,
@@ -74,15 +83,15 @@ export class ChargerSimulator {
             disconnected({code, reason}) {
               log.debug("OCPP disconnected", {code, reason})
             },
-            subscribed(subscriptions: number): void {
-            },
-            unsubscribed(subscriptions: number): void {
-            },
+            subscribed(subscriptions: number): void {},
+            unsubscribed(subscriptions: number): void {},
           },
         }
       )
 
-      log.info(`Connected to Central System at ${this.config.centralSystemEndpoint} using WebSocket`)
+      log.info(
+        `Connected to Central System at ${this.config.centralSystemEndpoint} using WebSocket`
+      )
 
       this.centralSystem = remote
     }
@@ -168,6 +177,10 @@ export class ChargerSimulator {
     return true
   }
 
+  disconnect() {
+    ws.close()
+  }
+
   public centralSystem = null
 
   private config: Config = null
@@ -190,9 +203,9 @@ export class ChargerSimulator {
     },
 
     GetConfiguration: async (req) => {
-      await new Promise(r => setTimeout(r, 2000))
+      await new Promise((r) => setTimeout(r, 2000))
 
-      return ({configurationKey: this.configurationKeys})
+      return {configurationKey: this.configurationKeys}
     },
     ChangeConfiguration: async (req) => {
       for (let i = 0; i < this.configurationKeys.length; i++) {
@@ -222,6 +235,6 @@ export class ChargerSimulator {
 
     UpdateFirmware: async (req) => {
       return {status: "Accepted"}
-    }
+    },
   }
 }

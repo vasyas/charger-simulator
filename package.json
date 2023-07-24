@@ -25,12 +25,13 @@
     "access": "public"
   },
   "dependencies": {
-    "@push-rpc/core": "^1.0.32",
-    "@push-rpc/websocket": "^1.0.6",
+    "@push-rpc/core": "^1.6.2",
+    "@push-rpc/websocket": "^1.6.2",
+    "@types/ws": "^8.5.4",
     "command-line-args": "^5.1.1",
     "command-line-usage": "^6.1.0",
     "strong-soap": "1.21.0",
-    "ws": "^7.3.0",
+    "ws": "^8.13.0",
     "xml2js": "^0.4.23"
   }
 }

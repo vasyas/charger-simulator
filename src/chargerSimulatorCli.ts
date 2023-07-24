@@ -89,6 +89,7 @@ const usageSections = [
     --
     b:        send BootNotification
     d:        send DataTransfer
+    i:        disconnect from Central System
     
     Connector ${connectorId} status
     ---
@@ -124,6 +125,8 @@ const usageSections = [
         messageId: "MessageID",
         data: "Data",
       }),
+
+    i: () => simulator.disconnect(),
 
     a: () => sendStatus("Available"),
     p: () => sendStatus("Preparing"),
