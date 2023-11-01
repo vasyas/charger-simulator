@@ -21,7 +21,7 @@ const optionList = [
     description:
       "Port number to bind ChargePoint SOAP service. If specified, emulator will use SOAP protocol to connect to Central System, otherwise, WebSocket will be used",
     typeLabel: "{underline Number}",
-    alias: "p"
+    alias: "p",
   },
   {
     name: "chargerId",
@@ -79,7 +79,7 @@ const usageSections = [
   const simulator = new ChargerSimulator({
     centralSystemEndpoint: csURL,
     chargerIdentity: chargerId,
-    chargePointPort: cpPort
+    chargePointPort: cpPort,
   })
   await simulator.start()
 
@@ -96,6 +96,7 @@ const usageSections = [
     a:        send Available status 
     p:        send Preparing status
     c:        send Charging status
+    e:        send SuspendedEV status
     f:        send Finishing status
     
     Transaction on connector ${connectorId}, tag ${idTag}
@@ -131,6 +132,7 @@ const usageSections = [
     a: () => sendStatus("Available"),
     p: () => sendStatus("Preparing"),
     c: () => sendStatus("Charging"),
+    e: () => sendStatus("SuspendedEV"),
     f: () => sendStatus("Finishing"),
 
     u: () => simulator.centralSystem.Authorize({idTag}),
