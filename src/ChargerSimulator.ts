@@ -56,7 +56,6 @@ export class ChargerSimulator {
       log.info(`Will send messages to Central System at ${this.config.centralSystemEndpoint}`)
     } else {
       const {remote} = await createRpcClient(
-        0,
         async () => {
           ws = new WebSocket(
             this.config.centralSystemEndpoint + "/" + this.config.chargerIdentity,
