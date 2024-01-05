@@ -1,6 +1,6 @@
 import {createRpcClient} from "@push-rpc/core"
 import {wrapWebsocket} from "@push-rpc/websocket/dist/server"
-import * as WebSocket from "ws"
+import WebSocket from "ws"
 import {log} from "./log"
 import {createCentralSystemClient, createChargePointServer} from "./soap/ocppSoap"
 

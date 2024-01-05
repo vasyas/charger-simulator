@@ -1,6 +1,6 @@
-import * as commandLineArgs from "command-line-args"
-import * as commandLineUsage from "command-line-usage"
-import * as readline from "readline"
+import commandLineArgs from "command-line-args"
+import commandLineUsage from "command-line-usage"
+import readline from "readline"
 
 import {log} from "./log"
 import {ChargerSimulator} from "./ChargerSimulator"
