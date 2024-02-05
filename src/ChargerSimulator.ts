@@ -216,6 +216,10 @@ export class ChargerSimulator {
       return {status: "Accepted"}
     },
 
+    ChangeAvailability: async(req) => {
+      return {status: "Accepted"}
+    },
+
     ReserveNow: async (req) => {
       return {status: "Accepted"}
     },

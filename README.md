@@ -72,9 +72,10 @@ will result in StartTransaction and multiple MeterValues to be sent to central s
 *RemoteStopTransaction*. Will stop running transaction.
 
 *GetConfiguration*. Return charge point configuration.
+
 *ChangeConfiguration*. Change charge point configuration.
 
-*ReserveNow, CancelReservation, Reset*. Return 'Accepted', but do nothing.
+*ChangeAvailability, ReserveNow, CancelReservation, Reset*. Return 'Accepted', but do nothing.
 
 All other methods are not implemented.
 
