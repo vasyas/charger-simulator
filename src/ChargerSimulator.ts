@@ -220,6 +220,10 @@ export class ChargerSimulator {
       return {status: "Accepted"}
     },
 
+    ClearCache: async(req) => {
+      return {status: "Accepted"}
+    },
+
     ReserveNow: async (req) => {
       return {status: "Accepted"}
     },

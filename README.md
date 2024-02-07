@@ -75,7 +75,7 @@ will result in StartTransaction and multiple MeterValues to be sent to central s
 
 *ChangeConfiguration*. Change charge point configuration.
 
-*ChangeAvailability, ReserveNow, CancelReservation, Reset*. Return 'Accepted', but do nothing.
+*ChangeAvailability, ClearCache, ReserveNow, CancelReservation, Reset*. Return 'Accepted', but do nothing.
 
 All other methods are not implemented.
 
