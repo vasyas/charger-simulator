@@ -88,6 +88,7 @@ const usageSections = [
     
     --
     b:        send BootNotification
+    o:        send BootNotification with optional parameters
     d:        send DataTransfer
     i:        disconnect from Central System
     
@@ -119,6 +120,16 @@ const usageSections = [
       simulator.centralSystem.BootNotification({
         chargePointVendor: "OC",
         chargePointModel: "OCX",
+      }),
+    o: () =>
+      simulator.centralSystem.BootNotification({
+        chargePointVendor: "OC",
+        chargePointModel: "OCX",
+        chargePointSerialNumber: "1234-5678",
+        meterSerialNumber: "1234-5678-AA-BB",
+        firmwareVersion: "AA-001",
+        iccid: "OMEGA-PEPEGA",
+        imsi: "ENERGY-001",
       }),
     d: () =>
       simulator.centralSystem.DataTransfer({
