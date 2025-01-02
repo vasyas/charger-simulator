@@ -216,11 +216,11 @@ export class ChargerSimulator {
       return {status: "Accepted"}
     },
 
-    ChangeAvailability: async(req) => {
+    ChangeAvailability: async (req) => {
       return {status: "Accepted"}
     },
 
-    ClearCache: async(req) => {
+    ClearCache: async (req) => {
       return {status: "Accepted"}
     },
 
@@ -241,6 +241,15 @@ export class ChargerSimulator {
     },
 
     UpdateFirmware: async (req) => {
+      return {status: "Accepted"}
+    },
+
+    SetChargingProfile: async (req) => {
+      log.info(
+        "SetChargingProfile",
+        req.csChargingProfiles?.chargingSchedule?.chargingSchedulePeriod?.[0]?.limit
+      )
+
       return {status: "Accepted"}
     },
   }
