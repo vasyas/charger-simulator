@@ -47,6 +47,20 @@ const optionList = [
     alias: "t",
     defaultValue: "12345678",
   },
+  {
+    name: "username",
+    type: String,
+    description: "Username for Basic Authentication",
+    typeLabel: "{underline username}",
+    alias: "u",
+  },
+  {
+    name: "password",
+    type: String,
+    description: "Password for Basic Authentication",
+    typeLabel: "{underline password}",
+    alias: "w",
+  },
 ]
 
 const usageSections = [
@@ -61,7 +75,8 @@ const usageSections = [
 ]
 
 ;(async () => {
-  const {connectorId, csURL, cpPort, chargerId, idTag} = commandLineArgs(optionList)
+  const {connectorId, csURL, cpPort, chargerId, idTag, username, password} =
+    commandLineArgs(optionList)
 
   if (!connectorId || !csURL || !chargerId) {
     const usage = commandLineUsage(usageSections)
@@ -80,6 +95,8 @@ const usageSections = [
     centralSystemEndpoint: csURL,
     chargerIdentity: chargerId,
     chargePointPort: cpPort,
+    username,
+    password,
   })
   await simulator.start()
 

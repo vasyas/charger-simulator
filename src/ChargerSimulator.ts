@@ -16,6 +16,8 @@ export interface Config {
   centralSystemEndpoint: string
   chargerIdentity: string
   chargePointPort?: number
+  username?: string
+  password?: string
 }
 
 const defaultConfig: Partial<Config> = {
@@ -55,11 +57,15 @@ export class ChargerSimulator {
       )
       log.info(`Will send messages to Central System at ${this.config.centralSystemEndpoint}`)
     } else {
+      const {username, password} = this.config
       const {remote} = await createRpcClient(
         async () => {
           ws = new WebSocket(
             this.config.centralSystemEndpoint + "/" + this.config.chargerIdentity,
-            "ocpp1.6"
+            "ocpp1.6",
+            {
+              auth: username && password ? `${username}:${password}` : undefined,
+            }
           )
 
           return wrapWebsocket(ws)
