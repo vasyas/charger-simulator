@@ -60,6 +60,8 @@ Options
                                   Defaults to 1.
   -t, --idTag idTag               ID Tag to start transaction.
                                   Defaults to 123456.
+  -u, --username username         Username for Basic Authentication
+  -w, --password password         Password for Basic Authentication    
 ```
 
 ## Default behavior
